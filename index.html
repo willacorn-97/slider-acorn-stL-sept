@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Before & After Slider</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .slider-before,
+        .slider-after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .slider-before {
+            background-image: url('https://i.imgur.com/5NFxzM1.jpeg');
+            clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+            z-index: 2;
+        }
+
+        .slider-after {
+            background-image: url('https://i.imgur.com/ZWvg1hp.jpeg');
+            z-index: 1;
+        }
+
+        .slider-divider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: #fff;
+            cursor: ew-resize;
+            transform: translateX(-50%);
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .slider-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid #333;
+            border-right: 6px solid #333;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .slider-labels {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 5;
+        }
+
+        .slider-label {
+            background: rgba(36, 48, 72, 0.7);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 0px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 650px) {
+            .slider-container {
+                width: 100%;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <div class="slider-before"></div>
+        <div class="slider-after"></div>
+        <div class="slider-divider" id="sliderDivider"></div>
+        <div class="slider-labels">
+            <div class="slider-label">Oct 2024</div>
+            <div class="slider-label">Jul 2025</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sliderDivider = document.getElementById('sliderDivider');
+            const sliderBefore = document.querySelector('.slider-before');
+            let isDragging = false;
+
+            // Mouse events
+            sliderDivider.addEventListener('mousedown', startDragging);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDragging);
+
+            // Touch events for mobile
+            sliderDivider.addEventListener('touchstart', startDragging);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('touchend', stopDragging);
+
+            // Click to move
+            const container = document.querySelector('.slider-container');
+            container.addEventListener('click', handleClick);
+
+            function startDragging(e) {
+                isDragging = true;
+                e.preventDefault();
+            }
+
+            function stopDragging() {
+                isDragging = false;
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                
+                e.preventDefault();
+                updateSliderPosition(e);
+            }
+
+            function handleClick(e) {
+                if (e.target === sliderDivider) return;
+                
+                const container = document.querySelector('.slider-container');
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const percentage = (x / rect.width) * 100;
+                
+                updateSlider(percentage);
+            }
+
+            function updateSliderPosition(e) {
+                const container = document.querySelector('.slider-container');
+                const rect = container.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const percentage = (x / rect.width) * 100;
+                
+                updateSlider(percentage);
+            }
+
+            function updateSlider(percentage) {
+                // Clamp percentage between 0 and 100
+                percentage = Math.max(0, Math.min(100, percentage));
+                
+                // Update divider position
+                sliderDivider.style.left = percentage + '%';
+                
+                // Update before image clip-path
+                sliderBefore.style.clipPath = `polygon(0 0, ${percentage}% 0, ${percentage}% 100%, 0 100%)`;
+                
+                // Debug logging
+                console.log('Slider updated:', percentage + '%');
+            }
+
+            // Initialize at 50%
+            updateSlider(50);
+        });
+    </script>
+</body>
+
+</html> 
+
+
+
+
+
